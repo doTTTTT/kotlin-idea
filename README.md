@@ -3,7 +3,7 @@
 ### Extension
 
 
-```
+```kotlin
 fun Activity.start(clazz: KClass<out Activity>, callback: Intent.() -> Unit = {}) {
   startActivity(Intent(this, clazz.java).apply(callback))
 }
@@ -11,7 +11,7 @@ fun Activity.start(clazz: KClass<out Activity>, callback: Intent.() -> Unit = {}
 
 Use 
 
-```
+```kotlin
 start(SomeActivity::class) {
   putExtra("SOME_EXTRA", "extra")
 }
