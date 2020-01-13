@@ -1,5 +1,3 @@
-package com.somfy.homeapp.ui
-
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -60,9 +58,6 @@ abstract class IActivity<B : ViewDataBinding, VM : IActivityViewModel>(
         if (::viewModel.isInitialized)
             viewModel.registerListener()
 
-        ConnectManager.registerListener(viewModel)
-        ConnectManager.registerView(binding.root)
-
         binding.root.doOnLayout {
             viewModel.onViewDisplayed()
         }
@@ -93,32 +88,9 @@ abstract class IActivity<B : ViewDataBinding, VM : IActivityViewModel>(
         }
     }
 
-    private fun initPolling(init: Boolean) {
-        if (init && PollManager.getInstance().hasRegistrationId())
-            EPOSAgent.appIsInForeground()
-        else
-            EPOSAgent.appIsInBackground()
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        ConnectManager.init()
-        initPolling(enablePolling)
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        ConnectManager.clear()
-        initPolling(false)
-    }
-
     override fun onDestroy() {
         if (this::viewModel.isInitialized) {
             viewModel.disposable.dispose()
-            ConnectManager.unregisterView(binding.root)
-            ConnectManager.unregisterListener(viewModel)
             viewModel.unregisterListener()
         }
 
@@ -146,35 +118,6 @@ abstract class IActivity<B : ViewDataBinding, VM : IActivityViewModel>(
     override fun onBackPressed() {
         if (!::viewModel.isInitialized || !viewModel.isLoading.get())
             supportFinishAfterTransition()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        when (requestCode) {
-            HomeApp.REQUEST_SYSTEM_ALERT -> {
-                if (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                        Settings.canDrawOverlays(this)
-                    else
-                        true
-                ) {
-                    startService(Intent(this, ToastService::class.java))
-                } else {
-                    Snackbar.make(
-                        binding.root,
-                        "Sorry. Can't draw overlays without permission...",
-                        Snackbar.LENGTH_INDEFINITE
-                    ).setAction("Enabled") {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                            startActivityForResult(
-                                Intent(
-                                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")
-                                ), HomeApp.REQUEST_SYSTEM_ALERT)
-                        }
-                    }.show()
-                }
-            }
-        }
     }
 
     interface OnItemMenuSelected {
