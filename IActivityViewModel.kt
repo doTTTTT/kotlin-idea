@@ -1,5 +1,3 @@
-package com.somfy.homeapp.ui
-
 import android.content.Intent
 import android.os.Parcelable
 import androidx.annotation.AnimRes
