@@ -1,5 +1,3 @@
-package com.somfy.homeapp.ui
-
 import android.content.Intent
 import android.os.Parcelable
 import android.view.View
@@ -19,7 +17,6 @@ import kotlinx.android.parcel.RawValue
 import kotlin.reflect.KClass
 
 abstract class IViewModel<T> : ViewModel(),
-    ConnectManager.Listener,
     IActivity.OnItemMenuSelected {
     val isLoading: ObservableBoolean by lazy { ObservableBoolean(false) }
     val disposable: CompositeDisposable by lazy { CompositeDisposable() }
@@ -32,9 +29,6 @@ abstract class IViewModel<T> : ViewModel(),
     open fun unregisterListener() = Unit
 
     override fun onItemMenuSelected(id: Int): Boolean = true
-
-    override fun onConnected() = Unit
-    override fun onDisconnected() = Unit
 
     abstract class IAction
 
