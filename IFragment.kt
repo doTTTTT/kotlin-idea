@@ -1,5 +1,3 @@
-package com.somfy.homeapp.ui
-
 import android.content.Intent
 import android.os.Bundle
 import android.os.Parcelable
@@ -49,7 +47,6 @@ abstract class IFragment<B: ViewDataBinding, VM: IFragmentViewModel>(
             setHasOptionsMenu(true)
 
         viewModel.registerListener()
-        ConnectManager.registerListener(viewModel)
 
         return binding.root
     }
@@ -67,7 +64,6 @@ abstract class IFragment<B: ViewDataBinding, VM: IFragmentViewModel>(
     override fun onDestroy() {
         if (this::viewModel.isInitialized) {
             viewModel.disposable.clear()
-            ConnectManager.unregisterListener(viewModel)
             viewModel.unregisterListener()
         }
 
@@ -99,8 +95,6 @@ abstract class IFragment<B: ViewDataBinding, VM: IFragmentViewModel>(
                     action.requestCode
                 )
             is IViewModel.Actions.Dialog -> dialog(action)
-            is IViewModel.Actions.ActionDevice -> requestAction(action)
-            is IViewModel.Actions.GroupAction -> requestAction(action)
             is IViewModel.Actions.BottomDialogAction -> action.builder
                 .build(requireContext())
                 .show()
@@ -110,38 +104,5 @@ abstract class IFragment<B: ViewDataBinding, VM: IFragmentViewModel>(
             }
             else -> handleAction(action)
         }
-    }
-
-    private fun requestAction(action: IViewModel.Actions.ActionDevice) {
-        val intent: Intent = Intent(requireContext(), ActionActivity::class.java).apply {
-            putStringArrayListExtra(ActionActivity.EXTRA_URLS, arrayListOf(action.wrapper.deviceURL))
-            putExtra(ActionActivity.EXTRA_ACTION, action.action as? Parcelable)
-        }
-        val pairs: Array<Pair<View, String>> = TransitionHelper.createSafeTransitionParticipants(
-            requireActivity(),
-            false,
-            Pair(action.view, "card")
-        )
-        val options: ActivityOptionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(
-            requireActivity(),
-            *pairs
-        )
-
-        startActivityForResult(intent, action.requestCode, options.toBundle())
-    }
-
-    private fun requestAction(action: IViewModel.Actions.GroupAction) {
-        val intent: Intent = Intent(requireContext(), GroupActionActivity::class.java).apply {
-            putExtra(GroupActionActivity.EXTRA_FAMILY, action.family)
-            putParcelableArrayListExtra(
-                GroupActionActivity.EXTRA_ACTIONS,
-                action.actions.toCollection(ArrayList())
-            )
-        }
-
-        startActivityForResult(
-            intent,
-            action.requestCode
-        )
     }
 }
