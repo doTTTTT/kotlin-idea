@@ -1,5 +1,3 @@
-package com.somfy.homeapp.ui
-
 import android.os.Bundle
 
 abstract class IFragmentViewModel : IViewModel<Bundle>() {
